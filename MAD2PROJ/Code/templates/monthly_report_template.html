@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Monthly Activity Report</title>
+    <style>
+        /* Your CSS styling here */
+    </style>
+</head>
+<body>
+    <h1>Monthly Activity Report for {{ sponsor.name }}</h1>
+    <p>Dear {{ sponsor.name }},</p>
+    <p>Here is your activity report for the month:</p>
+
+    {% for campaign in campaigns %}
+    <h2>Campaign: {{ campaign.name }}</h2>
+    <ul>
+        <li>Description: {{ campaign.description }}</li>
+        <li>Start Date: {{ campaign.start_date }}</li>
+        <li>End Date: {{ campaign.end_date }}</li>
+        <li>Budget: {{ campaign.budget }}</li>
+        <li>Total Ad Requests: {{ campaign.total_ad_requests }}</li>
+    </ul>
+    {% endfor %}
+
+    <p>Best regards,<br>Your Team</p>
+</body>
+</html>

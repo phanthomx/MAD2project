@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sponsor Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Horizon&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='sponbase.css') }}">
+
+    <style>
+        .profile-container {
+            display: flex;
+            align-items: center;
+            margin-top: 50px;
+            color: white;
+        }
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            object-fit: cover;
+        }
+        .profile-info {
+            margin-left: 30px;
+        }
+        .profile-info h1 {
+            font-size: 2rem;
+        }
+        .profile-info p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        .card-img-top {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        @media (max-width: 576px) {
+            .profile-container {
+                flex-direction: column;
+                text-align: center;
+            }
+            .profile-info {
+                margin-left: 0;
+                margin-top: 20px;
+            }
+        }
+        .ad-campaign-container {
+            display: none;
+        }
+        .card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-body {
+            flex: 1;
+        }
+        .card-footer {
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light custom-navbar">
+        <a class="navbar-brand" href="{{ url_for('home') }}">
+            <img class="navbar-logo" src="{{ url_for('static', filename='logo.png') }}" width="50" height="50" alt="Logo">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('sponcer.slogout') }}">LOGOUT</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('sponcer.searchposts') }}">SEARCH POSTS</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="profile-container">
+            <div>
+                {% if sponcer.profile_pic %}
+                    <img src="{{ sponcer.profile_pic_url }}" alt="Profile Picture" class="profile-pic">
+                {% else %}
+                    <p>No profile picture uploaded.</p>
+                {% endif %}
+            </div>
+            <div class="profile-info">
+                <h1>Welcome, {{ sponcer.company_name }}</h1>
+                <p><strong>Email:</strong> {{ sponcer.company_email }}</p>
+                <p><strong>Description:</strong> {{ sponcer.description }}</p>
+            </div>
+        </div>
+
+        <div class="sectors-container">
+            <h2>Associated Industries</h2>
+            <ul class="list-group">
+                {% for industry in industries %}
+                    <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center">
+                        {{ industry.name }}
+                        <form action="{{ url_for('sponcer.delete_industry', industry_id=industry.id) }}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="sectors-container mt-4">
+            <button id="addIndustryButton" class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#addIndustryForm" aria-expanded="false" aria-controls="addIndustryForm" {% if industries|length >= 3 %}disabled{% endif %}>
+                Add Industry
+            </button>
+            <div class="collapse mt-3" id="addIndustryForm">
+                <form action="{{ url_for('sponcer.dashboard') }}" method="post">
+                    <div class="form-group">
+                        <label for="industry">Industries</label>
+                        <select class="form-control" id="industry" name="industry" required>
+                            {% for industry in all_industries %}
+                                <option value="{{ industry.id }}">{{ industry.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3">Add Industry</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="social-media-container mt-4">
+            <h2>Social Media Links</h2>
+            <ul class="list-group">
+                {% for link in social_media_links %}
+                    <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center">
+                        {{ link.platform_name }}: <a href="{{ link.link_to_page }}" class="text-white" target="_blank">{{ link.username }}</a>
+                        <form action="{{ url_for('sponcer.delete_social_media_link', link_id=link.id) }}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="social-media-container mt-4">
+            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#addSocialMediaForm" aria-expanded="false" aria-controls="addSocialMediaForm">
+                Add Social Media Link
+            </button>
+            <div class="collapse mt-3" id="addSocialMediaForm">
+                <form action="{{ url_for('sponcer.add_social_media_link') }}" method="post">
+                    <div class="form-group">
+                        <label for="platform_name">Platform</label>
+                        <input type="text" class="form-control" id="platform_name" name="platform_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="link_to_page">Link to Page</label>
+                        <input type="url" class="form-control" id="link_to_page" name="link_to_page" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3">Add Link</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="container">
+            <button id="toggle-campaign-form" class="btn btn-primary mt-4">Add Campaign</button>
+            <button id="export-campaigns" class="btn btn-success mt-4">Export Campaigns</button>
+            <div class="ad-campaign-container mt-4">
+                <h2>Create New Ad Campaign</h2>
+                <form action="{{ url_for('sponcer.dashboard') }}" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="campaign_name">Campaign Name</label>
+                        <input type="text" class="form-control" id="campaign_name" name="campaign_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="campaign_description">Campaign Description</label>
+                        <textarea class="form-control" id="campaign_description" name="campaign_description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="campaign_start_date">Start Date</label>
+                        <input type="date" class="form-control" id="campaign_start_date" name="campaign_start_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="campaign_end_date">End Date</label>
+                        <input type="date" class="form-control" id="campaign_end_date" name="campaign_end_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="campaign_budget">Budget</label>
+                        <input type="number" step="0.01" class="form-control" id="campaign_budget" name="campaign_budget" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="campaign_picture">Campaign Picture (optional)</label>
+                        <input type="file" class="form-control" id="campaign_picture" name="campaign_picture">
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3">Create Campaign</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="ad-campaigns-container mt-4">
+            <h2>Ad Campaigns</h2>
+            <div class="row">
+                {% for campaign in ad_campaigns %}
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        {% if campaign.picture %}
+                        <img src="{{ campaign.picture_url }}" class="card-img-top" alt="Campaign Picture" data-bs-toggle="modal" data-bs-target="#campaignModal{{ campaign.id }}">
+                        <!-- Modal -->
+                        <div class="modal fade" id="campaignModal{{ campaign.id }}" tabindex="-1" aria-labelledby="campaignModalLabel{{ campaign.id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="campaignModalLabel{{ campaign.id }}">{{ campaign.name }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <img src="{{ campaign.picture_url }}" class="img-fluid" alt="Campaign Picture">
+                                        <p>{{ campaign.description }}</p>
+                                        <p><small class="text-muted">Start Date: {{ campaign.start_date }}</small></p>
+                                        <p><small class="text-muted">End Date: {{ campaign.end_date }}</small></p>
+                                        <p><small class="text-muted">Budget: {{ campaign.budget }}</small></p>
+                                        <a href="{{ url_for('sponcer.view_requests', campaign_id=campaign.id) }}" class="btn btn-primary btn-sm">View Ad Requests</a>
+                                        <form action="{{ url_for('sponcer.delete_campaign', campaign_id=campaign.id) }}" method="post">
+                                            <button type="submit" class="btn btn-danger btn-sm mt-2">Delete Campaign</button>
+                                        </form>
+                                        {% if campaign.end_date < current_date %}
+                                        <form action="{{ url_for('sponcer.delete_campaign', campaign_id=campaign.id) }}" method="post">
+                                            <button type="submit" class="btn btn-warning btn-sm mt-2">Delete Expired Campaign</button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ campaign.name }}</h5>
+                            <p class="card-text">{{ campaign.description }}</p>
+                            <p class="card-text"><small class="text-muted">Start Date: {{ campaign.start_date }}</small></p>
+                            <p class="card-text"><small class="text-muted">End Date: {{ campaign.end_date }}</small></p>
+                            <p class="card-text"><small class="text-muted">Budget: {{ campaign.budget }}</small></p>
+                            <a href="{{ url_for('sponcer.view_requests', campaign_id=campaign.id) }}" class="btn btn-primary btn-sm mt-2">View Ad Requests</a>
+                            <button type="button" class="btn btn-info btn-sm mt-2" onclick="toggleUpdateForm('{{ campaign.id }}')">Update Campaign</button>
+                            <!-- Delete button outside modal -->
+                            <form action="{{ url_for('sponcer.delete_campaign', campaign_id=campaign.id) }}" method="post">
+                                <button type="submit" class="btn btn-danger btn-sm mt-2">Delete Campaign</button>
+                            </form>
+                        </div>
+                        <!-- Update form (hidden initially, toggled by JavaScript) -->
+                        <div id="updateForm{{ campaign.id }}" class="card-body" style="display:none;">
+                            <form method="POST" action="{{ url_for('sponcer.update_campaign') }}">
+                                <input type="hidden" name="campaign_id" value="{{ campaign.id }}">
+                                <div class="form-group">
+                                    <label for="new_budget">New Budget</label>
+                                    <input type="number" class="form-control" id="new_budget" name="new_budget" step="0.01" value="{{ campaign.budget }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="new_start_date">New Start Date</label>
+                                    <input type="date" class="form-control" id="new_start_date" name="new_start_date" value="{{ campaign.start_date }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="new_end_date">New End Date</label>
+                                    <input type="date" class="form-control" id="new_end_date" name="new_end_date" value="{{ campaign.end_date }}" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                <button type="button" class="btn btn-secondary ms-2" onclick="toggleUpdateForm('{{ campaign.id }}')">Cancel</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <script>
+            function toggleUpdateForm(campaignId) {
+                var formId = 'updateForm' + campaignId;
+                var form = document.getElementById(formId);
+                if (form.style.display === 'none') {
+                    form.style.display = 'block';
+                } else {
+                    form.style.display = 'none';
+                }
+            }
+        </script>
+        
+        <script>
+            $(document).ready(function(){
+                $("#toggle-campaign-form").click(function(){
+                    $(".ad-campaign-container").slideToggle();
+                });
+
+                $("#export-campaigns").click(function(){
+                    // Perform the export action here
+                    window.location.href = "{{ url_for('sponcer.export_campaigns') }}";
+                });
+            });
+
+            document.addEventListener('DOMContentLoaded', function() {
+                var addIndustryButton = document.getElementById('addIndustryButton');
+                var industryList = document.querySelectorAll('.sectors-container .list-group-item');
+                
+                if (industryList.length >= 3) {
+                    addIndustryButton.disabled = true;
+                }
+        
+                updateAddIndustryButton();
+        
+                function updateAddIndustryButton() {
+                    if (industryList.length >= 3) {
+                        addIndustryButton.disabled = true;
+                    } else {
+                        addIndustryButton.disabled = false;
+                    }
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Influencer dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Horizon&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='infbase.css') }}">
+    <style>
+        .profile-container {
+            display: flex;
+            align-items: center;
+            margin-top: 50px;
+        }
+        .add-post-container {
+            max-width: 600px;
+            margin: auto;
+        }
+        
+        .posts-container .post {
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #1a1a1a;
+            padding: 15px;
+        }
+        
+        .posts-container .post img,
+        .posts-container .post video {
+            max-width: 100%;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .posts-container .post p {
+            font-size: 1.2rem;
+        }
+        
+        .posts-container .post ul {
+            padding: 0;
+        }
+        
+        .posts-container .post ul li {
+            list-style-type: none;
+            margin-right: 10px;
+            display: inline-block;
+            font-size: 0.9rem;
+        }
+        
+        .posts-container .post form {
+            margin-top: 10px;
+        }
+        
+        .posts-container .post button {
+            font-size: 0.9rem;
+        }
+        
+        .card-img-top {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        @media (max-width: 576px) {
+            .add-post-container,
+            .posts-container .post {
+                padding: 10px;
+            }
+        }
+        
+        
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            object-fit: cover;
+        }
+        .profile-info {
+            margin-left: 30px;
+            color: white;
+        }
+        .profile-info h1 {
+            font-size: 2rem;
+        }
+        .profile-info p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        .sectors-container {
+            margin-top: 30px;
+            color: white;
+        }
+        .post-container {
+            margin-top: 30px;
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .post {
+            margin-bottom: 20px;
+        }
+        .post img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light custom-navbar">
+        <a class="navbar-brand" href="{{ url_for('home') }}">
+            <img class="navbar-logo" src="{{ url_for('static', filename='logo.png') }}" width="50" height="50" alt="Logo">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('influencer.view_ad_requests') }}">View Ad Requests</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('influencer.view_ad_campaigns') }}">View Ad Campaigns</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('influencer.ilogout') }}">LOGOUT</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    
+
+
+    <div class="container">
+        <div class="profile-container">
+            <div>
+                {% if influencer.profile_pic %}
+                    <img src="{{ influencer.profile_pic_url }}" alt="Profile Picture" class="profile-pic">
+                {% else %}
+                    <p>No profile picture uploaded.</p>
+                {% endif %}
+            </div>
+            <div class="profile-info">
+                <h1>Welcome, {{ influencer.name }}</h1>
+                <p><strong>Email:</strong> {{ influencer.email }}</p>
+                <p><strong>Username:</strong> {{ influencer.username }}</p>
+                <p><strong>Bio:</strong> {{ influencer.bio }}</p>
+            </div>
+        </div>
+
+
+        <div class="sectors-container">
+            <h2>INFLUENCING SECTORS</h2>
+            <ul class="list-group">
+                {% for sector in influencer_sectors %}
+                    <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center">
+                        {{ sector.name }}
+                        <form action="{{ url_for('influencer.delete_sector', sector_id=sector.id) }}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <div class="sectors-container mt-4">
+            <button id="addSectorButton" class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#addSectorForm" aria-expanded="false" aria-controls="addSectorForm" {% if influencer_sectors|length >= 3 %}disabled{% endif %}>
+                Add Sector
+            </button>
+            <div class="collapse mt-3" id="addSectorForm">
+                <form action="{{ url_for('influencer.add_sectors') }}" method="post">
+                    <div class="form-group">
+                        <label for="sectors">Sectors</label>
+                        <select class="form-control" id="sectors" name="sectors">
+                            {% for sector in all_sectors %}
+                                <option value="{{ sector.id }}">{{ sector.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3">Add Sector</button>
+                </form>
+            </div>
+        </div>
+        
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var addSectorButton = document.getElementById('addSectorButton');
+                var sectorList = document.querySelectorAll('.sectors-container .list-group-item');
+                
+                if (sectorList.length >= 3) {
+                    addSectorButton.disabled = true;
+                }
+        
+                // Check if sectors count is already at limit on page load
+                updateAddSectorButton();
+        
+                // Function to update addSectorButton status based on current count
+                function updateAddSectorButton() {
+                    if (sectorList.length >= 3) {
+                        addSectorButton.disabled = true;
+                    } else {
+                        addSectorButton.disabled = false;
+                    }
+                }
+        
+                // Listen for form submission to dynamically update button status
+                var addSectorForm = document.querySelector('#addSectorForm form');
+                addSectorForm.addEventListener('submit', function(event) {
+                    var selectedSector = document.getElementById('sectors').value;
+                    if (sectorList.length >= 3) {
+                        event.preventDefault(); // Prevent form submission if max sectors reached
+                    }
+                });
+            });
+        </script>
+
+        
+        
+        <!-- Assuming this is part of your dashboard template -->
+        <div class="social-media-links">
+            <h3>Social Media Links</h3>
+            <ul>
+                {% for link in social_media_links %}
+                <li>
+                    <strong>{{ link.platform_name }}</strong>: <a href="{{ link.link_to_page }}" target="_blank">{{ link.username }}</a>
+                    <form action="{{ url_for('influencer.delete_social_media_link', link_id=link.id) }}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+
+        <div class="add-social-media-link-container">
+        
+            <button id="toggleFormButton" class="btn btn-primary">Add Social Media Link</button>
+            <form id="socialMediaForm" action="{{ url_for('influencer.add_social_media_link') }}" method="post" style="display:none;">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="platform_name">Platform Name</label>
+                    <input type="text" class="form-control" id="platform_name" name="platform_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="link_to_page">Link to Page</label>
+                    <input type="url" class="form-control" id="link_to_page" name="link_to_page" required>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Add Social Media Link</button>
+            </form>
+        </div><br><br>
+        
+        
+
+        <div class="container">
+            <div class="add-post-container mt-4">
+                <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#addPostForm" aria-expanded="false" aria-controls="addPostForm">
+                    Add Post
+                </button>
+                <div class="collapse mt-3" id="addPostForm">
+                    <form action="{{ url_for('influencer.add_post') }}" method="post" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="media">Upload Media</label>
+                            <input type="file" class="form-control" id="media" name="media" accept="image/*, video/mp4" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="post_sector">Post Sector</label>
+                            <select class="form-control" id="post_sector" name="post_sector" required>
+                                {% for sector in all_sectors %}
+                                    <option value="{{ sector.id }}">{{ sector.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3">Add Post</button>
+                    </form>
+                </div>
+            </div>
+        
+            <div class="posts-container mt-4">
+                <h2>All Posts</h2>
+                {% for post in all_posts %}
+                    <div class="post card bg-dark text-white mb-3">
+                        <div class="card-body">
+                            {% if post.media_url %}
+                                {% if post.media_url.endswith('.mp4') %}
+                                    <video controls class="w-100">
+                                        <source src="{{ post.media_url }}" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                {% else %}
+                                    <img src="{{ post.media_url }}" class="card-img-top" alt="Post Media">
+                                {% endif %}
+                            {% endif %}
+                            <p class="card-text">{{ post.description }}</p>
+                            <ul class="list-inline">
+                                {% for sector in post_sectors[post.id] %}
+                                    <li class="list-inline-item">{{ sector.name }}</li>
+                                {% endfor %}
+                            </ul>
+                            <form action="{{ url_for('influencer.delete_post', post_id=post.id) }}" method="post">
+                                <button type="submit" class="btn btn-danger">Delete Post</button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+    
+    
+    
+    
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-8Gv8s8BHXk2jMqeIPBv6+5dKef1SfTqpHwPOHlFxPz9baUSfXpIV1DPXHtwFhZcK" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script>
+    // jQuery to toggle the collapse on button click
+    $(document).ready(function() {
+        $('.collapse').collapse({ toggle: false }); // initialize collapse without toggling
+        $('.btn-primary').click(function() {
+            $('#addPostForm').collapse('toggle'); // toggle the collapse on button click
+        });
+    });
+</script>
+<script>
+    document.getElementById('toggleFormButton').addEventListener('click', function() {
+        var form = document.getElementById('socialMediaForm');
+        if (form.style.display === 'none') {
+            form.style.display = 'block';
+        } else {
+            form.style.display = 'none';
+        }
+    });
+    </script>
+    
+</body>
+</html>
+

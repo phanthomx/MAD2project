@@ -1,0 +1,21 @@
+.custom-navbar {
+    background-color: #00FF7F !important;
+
+}
+.navbar-logo {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+body {
+    background-color: black;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    color: white;
+    background-size: cover; /* Optional: to make the background image cover the entire page */
+    background-repeat: no-repeat; /* Optional: to prevent repeating of the image */
+    background-position: center center; /* Optional: to center the image */
+}
+.nav-link{
+    color: white !important;
+    font-size: 25px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}

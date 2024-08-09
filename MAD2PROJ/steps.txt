@@ -1,0 +1,5 @@
+flask --app app run
+redis-server
+celery -A app:celery_app worker -l INFO
+celery -A app:celery_app beat -l INFO
+mailhog

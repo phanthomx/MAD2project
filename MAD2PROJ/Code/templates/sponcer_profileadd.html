@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sponcer profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Horizon&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='infbase.css') }}">    
+    <style>
+        .profile-container {
+            display: flex;
+            align-items: center;
+            margin-top: 50px;
+            color: white;
+        }
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            object-fit: cover;
+        }
+        .profile-info {
+            margin-left: 30px;
+        }
+        .profile-info h1 {
+            font-size: 2rem;
+        }
+        .profile-info p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        .card-img-top {
+            max-width: 100%;
+            height: auto;
+        }
+        @media (max-width: 576px) {
+            .profile-container {
+                flex-direction: column;
+                text-align: center;
+            }
+            .profile-info {
+                margin-left: 0;
+                margin-top: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light custom-navbar">
+        <a class="navbar-brand" href="{{ url_for('home') }}">
+            <img class="navbar-logo" src="{{ url_for('static', filename='logo.png') }}" width="50" height="50" alt="Logo">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('influencer.view_ad_requests') }}">Back to Ad Requests</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="profile-container">
+            <div>
+                {% if sponcer.profile_pic %}
+                    <img src="{{ sponcer.profile_pic_url }}" alt="Profile Picture" class="profile-pic">
+                {% else %}
+                    <p>No profile picture uploaded.</p>
+                {% endif %}
+            </div>
+            <div class="profile-info">
+                <h1>{{ sponcer.company_name }}</h1>
+                <p><strong>Email:</strong> {{ sponcer.company_email }}</p>
+                <p><strong>Description:</strong> {{ sponcer.description }}</p>
+            </div>
+        </div>
+
+        <div class="sectors-container mt-4">
+            <h2>Associated Industries</h2>
+            <ul class="list-group">
+                {% for industry in sponcer.industries %}
+                    <li class="list-group-item bg-dark text-white">
+                        {{ industry.name }}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="social-media-container mt-4">
+            <h2>Social Media Links</h2>
+            <ul class="list-group">
+                {% for link in social_media_links %}
+                    <li class="list-group-item bg-dark text-white">
+                        {{ link.platform_name }}: <a href="{{ link.link_to_page }}" class="text-white" target="_blank">{{ link.username }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="ad-campaigns-container mt-4">
+            <h2>Ad Campaigns</h2>
+            <div class="row">
+                {% for campaign in ad_campaigns %}
+                    <div class="col-md-4">
+                        <div class="card mb-4">
+                            {% if campaign.picture %}
+                                <img src="{{ campaign.picture_url }}" class="card-img-top" alt="Campaign Picture">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ campaign.name }}</h5>
+                                <p class="card-text">{{ campaign.description }}</p>
+                                <p class="card-text"><small class="text-muted">Start Date: {{ campaign.start_date }}</small></p>
+                                <p class="card-text"><small class="text-muted">End Date: {{ campaign.end_date }}</small></p>
+                                <p class="card-text"><small class="text-muted">Budget: {{ campaign.budget }}</small></p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

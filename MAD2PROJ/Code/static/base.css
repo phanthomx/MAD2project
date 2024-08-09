@@ -1,0 +1,22 @@
+body {
+    background-color: black;
+    background-image: url('pz.gif');
+
+    background-size: cover; /* Optional: to make the background image cover the entire page */
+    background-repeat: no-repeat; /* Optional: to prevent repeating of the image */
+    background-position: center center; /* Optional: to center the image */
+}
+.custom-navbar {
+    background-color: #ffffff !important;
+    color: black;
+
+}
+.navbar-logo {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+.nav-link{
+    color: rgb(0, 0, 0) !important;
+    font-size: 25px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}

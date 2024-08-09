@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sponsor Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='infbase.css') }}">
+    <style>
+        body {
+            background-color: #000000;
+            color: #ffffff;
+        }
+        .custom-navbar {
+            background-color: #343a40;
+        }
+        .navbar-brand img {
+            border-radius: 50%;
+        }
+        .navbar-nav .nav-link {
+            color: #ffffff !important;
+        }
+        .navbar-nav .nav-link:hover {
+            color: #adb5bd !important;
+        }
+        .profile-container {
+            display: flex;
+            align-items: center;
+            margin-top: 50px;
+        }
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            object-fit: cover;
+            cursor: pointer; /* Add cursor pointer to indicate it's clickable */
+        }
+        .profile-info {
+            margin-left: 30px;
+        }
+        .profile-info h1 {
+            font-size: 2rem;
+        }
+        .profile-info p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        .card {
+            background-color: #000000;
+            border: 1px solid #ffffff;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            color: #ffffff;
+            height: 100%;
+        }
+        .card img {
+            height: 250px; /* Adjust the height as needed */
+            object-fit: cover;
+            border-radius: 5px 5px 0 0; /* Rounded corners on top */
+            cursor: pointer; /* Add cursor pointer to indicate it's clickable */
+        }
+        .card-body {
+            color: #ffffff; /* Text color set to white */
+        }
+        .card-text, .text-muted {
+            color: #ffffff !important; /* Ensure all text is white */
+        }
+        .ad-campaigns-container {
+            margin-top: 40px; /* Space between sections */
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light custom-navbar">
+        <a class="navbar-brand" href="{{ url_for('home') }}">
+            <img class="navbar-logo" src="{{ url_for('static', filename='logo.png') }}" width="50" height="50" alt="Logo">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('influencer.view_ad_requests') }}">Back to Ad Requests</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="profile-container">
+            <div>
+                {% if sponsor.profile_pic %}
+                    <img src="{{ sponsor.profile_pic_url }}" alt="Profile Picture" class="profile-pic" data-bs-toggle="modal" data-bs-target="#imageModal">
+                {% else %}
+                    <p>No profile picture uploaded.</p>
+                {% endif %}
+            </div>
+            <div class="profile-info">
+                <h1>{{ sponsor.company_name }}</h1>
+                <p><strong>Email:</strong> {{ sponsor.company_email }}</p>
+                <p><strong>Description:</strong> {{ sponsor.description }}</p>
+            </div>
+        </div>
+
+        <div class="sectors-container mt-4">
+            <h2>Associated Industries</h2>
+            <ul class="list-group">
+                {% for industry in associated_industries %}
+                    <li class="list-group-item bg-dark text-white">
+                        {{ industry.name }}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="social-media-container mt-4">
+            <h2>Social Media Links</h2>
+            <ul class="list-group">
+                {% for link in social_media_links %}
+                    <li class="list-group-item bg-dark text-white">
+                        {{ link.platform_name }}: <a href="{{ link.link_to_page }}" class="text-white" target="_blank">{{ link.username }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="ad-campaigns-container mt-4">
+            <h2>Ad Campaigns</h2>
+            <div class="row">
+                {% for campaign in ad_campaigns %}
+                    <div class="col-md-4">
+                        <div class="card mb-4">
+                            {% if campaign.picture %}
+                                <img src="{{ campaign.picture_url }}" class="card-img-top" alt="Campaign Picture" data-bs-toggle="modal" data-bs-target="#imageModal">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ campaign.name }}</h5>
+                                <p class="card-text">{{ campaign.description }}</p>
+                                <p class="card-text"><small class="text-muted">Start Date: {{ campaign.start_date }}</small></p>
+                                <p class="card-text"><small class="text-muted">End Date: {{ campaign.end_date }}</small></p>
+                                <p class="card-text"><small class="text-muted">Budget: {{ campaign.budget }}</small></p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Image Enlargement -->
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <img src="" class="img-fluid" id="enlargedImg" alt="Enlarged Image">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript to handle image enlargement on click
+        var modalImg = document.getElementById('enlargedImg');
+        var imgToggleTargets = document.querySelectorAll('[data-bs-toggle="modal"]');
+
+        imgToggleTargets.forEach(function(imgToggleTarget) {
+            imgToggleTarget.addEventListener('click', function() {
+                var imgUrl = imgToggleTarget.getAttribute('src');
+                modalImg.setAttribute('src', imgUrl);
+            });
+        });
+    </script>
+</body>
+</html>
